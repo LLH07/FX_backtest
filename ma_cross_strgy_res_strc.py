@@ -48,9 +48,11 @@ def process_result(results): # 將 MAResult 的字典轉為 data frame
     #print(results_list)
 
     final_df = pd.DataFrame.from_dict(results_list)
-
-    print(final_df.info())
-    print(final_df.head())
+    final_df.to_pickle('ma_test_res.pkl')
+    
+    print(final_df.shape, final_df.num_trades.sum())
+    # print(final_df.info())
+    # print(final_df.head())
 
 # 6
 def evaluate_pair(i_pair, mashort, malong, price_data):
@@ -69,33 +71,54 @@ def evaluate_pair(i_pair, mashort, malong, price_data):
         params = {'mashort': mashort, 'malong' : malong}
         )
 
+# 8
+def get_test_pairs(pair_str): # 找出可供交易的貨幣對
+    existing_pairs = instrument.Instrument.get_instruments_dict().keys() # OANDA 允許我們交易的商品
+    pairs = pair_str.split(",") # 將使用者欲交易的商品轉成 list
+
+    test_list = [] 
+    for p1 in pairs:
+        for p2 in pairs:
+            p = f'{p1}_{p2}'
+            if p not in existing_pairs:
+                continue
+            test_list.append(p)
+
+    return test_list
+
 # 2
 def run():
+    currencies = "GBP,EUR,USD,CAD,AUD,NZD,CHF,JPY" # 欲交易的貨幣對
+    # 注意: currencies 等一下要轉成 list，所以不要放空格
 
     pairname = "EUR_CHF"
     granularity = "H1"
     
     # 給定各種長短 MA 組合
-    ma_short = [8, 16, 32, 64]
-    ma_long = [32, 64, 128, 256]
+    ma_short = [4, 8, 16, 24, 32, 64]
+    ma_long = [8, 16, 32, 64, 96, 128, 256]
 
-    # 取得 instrument 資訊
-    i_pair = instrument.Instrument.get_instrument_by_name(pairname)
     
-    # 加入 MA 與其他資料
-    price_data = get_price_data(pairname, granularity)
-    price_data = process_data(ma_short, ma_long, price_data)
 
     results = [] # 用一個 list 來放入各種週期 MA 的組合
 
-    for _malong in ma_long:
-        for _mashort in ma_short:
-            if _mashort >= _malong: # 慢線不能大於快線
-                continue
+    trade_list = get_test_pairs(currencies)
+    for t in trade_list:
+        print("running..", t)
 
-            results.append(evaluate_pair(i_pair, _mashort, _malong, price_data))
+        i_pair = instrument.Instrument.get_instrument_by_name(pairname)
+        price_data = get_price_data(pairname, granularity)
+        price_data = process_data(ma_short, ma_long, price_data)
+
+        for _malong in ma_long:
+            for _mashort in ma_short:
+                if _mashort >= _malong: # 慢線不能大於快線
+                    continue
+
+                results.append(evaluate_pair(i_pair, _mashort, _malong, price_data.copy()))
 
     process_result(results)
+    # 在 ma_cross_strgy_res_strc_2.png 可以看到總共交易了 87528 次，並使用了 840 種 MA 組合
 
 
 if __name__ == "__main__":
