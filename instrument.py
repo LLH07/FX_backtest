@@ -28,7 +28,29 @@ class Instrument():
         df = cls.get_instrument_df()
         return [Instrument(x) for x in df.to_dict(orient='records')]
         # 別忘了把轉成 Instrument class!!!
-    
+
+    # 2021.09.11 We need a function to get specific candle:
+    @classmethod
+    def get_instruments_dict(cls):
+        # dictionary comprehension:
+        i_list = cls.get_instrument_list() # i_list 裡面的元素皆是 Instrument 物件
+        i_keys = [x.name for x in i_list]
+        return {k:v for (k,v) in zip(i_keys, i_list)} # create a dict
+
+    # 2021.09.11 再寫個 function，從 get_instrument_dict 取得資料
+    @classmethod
+    def get_instrument_by_name(cls, pairname):
+        d = cls.get_instruments_dict()
+        if pairname in d:
+            return d[pairname]
+        else:
+            return None
 if __name__ == '__main__':
     # print(Instrument.get_instrument_df()) # 去 Terminal 確認正常讀取資料
-    print(Instrument.get_instrument_list())
+    # print(Instrument.get_instrument_list())
+
+    # test get_instruments_dict():
+    #for k,v in Instrument.get_instruments_dict().items():
+     #   print(k, v)
+    
+    print(Instrument.get_instrument_by_name("EUR_USD"))
