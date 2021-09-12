@@ -5,6 +5,7 @@ import pandas as pd
 import utils
 import instrument
 
+
 # 算完一堆 MA 後，console 會隱藏許多資料，可以用指令修改:
 pd.set_option('display.max_columns', None)
 
