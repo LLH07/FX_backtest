@@ -12,3 +12,8 @@ eg:
 ]
 ```
 
+---
+
+## 2021.09.20 在 excel 上畫出交易圖
+
+參考資料: [The Chart Class — XlsxWriter Documentation](https://xlsxwriter.readthedocs.io/chart.html)

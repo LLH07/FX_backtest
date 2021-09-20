@@ -29,7 +29,31 @@ def add_pair_charts(ma_test_res, all_trades, writer):
 
     # step 3: 將各 row 詳細資料儲存於 excel
         all_trades_temp[cols].to_excel(writer, sheet_name=row.pair, startrow=0, startcol=7)
-   
+
+        add_chart(row.pair, row.CROSS, all_trades_temp, writer)
+
+# 4. 2021.09.20 將交易資料畫出
+def get_line_chart(book, start_row, end_row, labels_col, data_col, title, sheetname):
+    chart = book.add_chart( {"type": 'line'} )
+    chart.add_series({
+        'categories' : [sheetname, start_row, labels_col, end_row, labels_col],
+        'values' : [sheetname, start_row, data_col, end_row, data_col], 
+        'line' : {'color' : 'blue'}
+    })
+
+    chart.set_title( {'name' : title} )
+    chart.set_legend( {'none' : True} )
+    
+    return chart 
+
+# 5 2021.09.20
+def add_chart(pairname, cross, df, writer):
+    workbook = writer.book
+    worksheet = writer.sheets[pairname]
+
+    chart = get_line_chart(workbook, 1, df.shape[0], 8, 9, f"Cum. Gains for {pairname} {cross}", pairname)
+    chart.set_size( {'x_scale':2.5, 'y_scale':2.5} )
+    worksheet.insert_chart('K1', chart)
 
 # 1
 def create_excel(ma_test_res, all_trades):
