@@ -45,6 +45,22 @@ class Instrument():
             return d[pairname]
         else:
             return None
+
+    # 2021.09.27 更新: 過濾所有貨幣對
+    @classmethod
+    def get_pairs_from_strings(cls, pair_str):
+        existing_pairs =cls.get_instruments_dict().keys()
+        pairs = pair_str.split(",")
+        
+        pair_list = []
+        for p1 in pairs:
+            for p2 in pairs:
+                p = f'{p1}_{p2}'
+                if p in existing_pairs:
+                    pair_list.append(p) # 將真實存在的貨幣對加入 pair_list 中
+
+        return pair_list
+
 if __name__ == '__main__':
     # print(Instrument.get_instrument_df()) # 去 Terminal 確認正常讀取資料
     # print(Instrument.get_instrument_list())
@@ -54,3 +70,4 @@ if __name__ == '__main__':
      #   print(k, v)
     
     print(Instrument.get_instrument_by_name("EUR_USD"))
+    print(Instrument.get_pairs_from_strings("GBP,EUR,USD,CAD,NZD,CHF,JPY"))
