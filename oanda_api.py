@@ -53,6 +53,11 @@ class OandaAPI():
         
         response = self.session.get(url, params=params, headers=defs.SECURE_HEADER)
         
+        # 2021.09.28 更新 bug 的處理方式
+        # 若狀態不是 200，則不要回傳資料 (因為裡面沒東西)
+        if response.status_code != 200:
+            return response.status_code, None
+
         return response.status_code, response.json() # response_json() is a dict
     
     def save_instruments(self):
